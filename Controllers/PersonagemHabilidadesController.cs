@@ -82,13 +82,52 @@ namespace RpgMvc.Controllers
                 HttpClient httpClient = new HttpClient();
                 string token = HttpContext.Session.GetString("SessionTokenUsuario");
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                HttpResponseMessage response = await httpClient.GetAsync(uriBase + UriComplentar);
+                HttpResponseMessage response = await httpClient.GetAsync(uriBase + uriComplentar);
+
+                string serialized = await response.Content.ReadAsStringAsync();
+                List<HabilidadeViewModel> habilidades = await Task.Run(() =>
+                JsonConvert.DeserializeObject<List<HabilidadeViewModel>>(serialized));
+                ViewBag.ListaHabilidades = habilidades;
+
+                PersonagemHabilidadeViewModel ph = new PersonagemHabilidadeViewModel ();
+                ph.Personagem = new PersonagemViewModel();
+                ph.Habilidade = new HabilidadeViewModel();
+                ph.PersonagemId = id;
+                ph.Personagem.Nome = nome;
+
+                return View(ph);
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-                
-                throw;
+                TempData["MensagemErro"] = ex.Message;
+                return RedirectToAction("Create", new { id, nome });
             }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> CreateAsync(PersonagemHabilidadeViewModel ph)
+        {
+            try
+            {
+                HttpClient httpClient = new HttpClient();
+                string token = HttpContext.Session.GetString("SessionTokenUsuario");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var content = new StringContent(JsonConvert.SerializeObject(ph));
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                HttpResponseMessage response = await httpClient.PostAsync(uriBase, content);
+                string serialized = await response.Content.ReadAsStringAsync();
+
+                if(response.StatusCode == System.Net.HttpStatusCode.OK)
+                    TempData["Mensagem"] = "Habilidade cadastrada com sucesso";
+                else
+                    throw new SystemException(serialized);
+            }
+            catch (System.Exception ex)
+            {
+                TempData["MensagemErro"] = ex.Message;
+            }
+            return RedirectToAction("Index", new { id = ph.PersonagemId});
         }
     
     
