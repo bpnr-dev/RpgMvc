@@ -199,7 +199,7 @@ namespace RpgMvc.Controllers
                 {
                     string mensagem = "Senha alterada com sucesso.";
                     TempData["Mensagem"] = mensagem; //Mensagem guardada do TempData que aparecerá na página pai do modal
-                return Json(mensagem); //Mensagem que será exibida no alert da Função que chamou este método
+                    return Json(mensagem); //Mensagem que será exibida no alert da Função que chamou este método
                 }
                 else
                     throw new System.Exception(serialized);
@@ -209,6 +209,100 @@ namespace RpgMvc.Controllers
                 return Json(ex.Message);
             }
         }
+
+        [HttpPost]
+        public async Task<ActionResult> EnviarFoto(UsuarioViewModel u)
+        {
+        
+            try
+            {
+                if (Request.Form.Files.Count == 0)
+                    throw new System.Exception("Selecione o arquivo.");
+                else
+                {
+                    var file = Request.Form.Files[0];
+                    var fileName = Path.GetFileName(file.FileName);
+                    string nomeArquivoSemExtensao = Path.GetFileNameWithoutExtension(fileName);
+                    var extensao = Path.GetExtension(fileName);
+
+                    if (extensao != ".jpg" && extensao != "jpeg" && extensao != ".png")
+                        throw new System.Exception("O Arquivo selecionado não é uma foto.");
+
+                    using (var ms = new MemoryStream())
+                    {
+                        file.CopyTo(ms);
+                        u.Foto = ms.ToArray();
+                    }
+                    
+                    HttpClient httpClient = new HttpClient();
+                        string token = HttpContext.Session.GetString("SessionTokenUsuario");
+                        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                        string uriComplementar = "AtualizarFoto";
+                        var content = new StringContent(JsonConvert.SerializeObject(u));
+                        content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                        HttpResponseMessage response = await httpClient.PutAsync(uriBase + uriComplementar, content);
+                        string serialized = await response.Content.ReadAsStringAsync();
+
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                            TempData["Mensagem"] = "Foto enviada com sucesso";
+                        else
+                            throw new System.Exception(serialized);
+                
+                
+                }
+            }
+            catch (System.Exception ex)
+            {
+                TempData["MensagemErro"] = ex.Message;
+            }
+            return RedirectToAction("IndexInformacoes");
+        }
+
+        [HttpGet]
+            public async Task<ActionResult> BaixarFoto()
+            {
+                try
+                {
+                    HttpClient httpClient = new HttpClient();
+                    string login = HttpContext.Session.GetString("SessionUsername");
+                    string uriComplementar = $"GetByLogin/{login}";
+                    HttpResponseMessage response = await httpClient.GetAsync(uriBase + uriComplementar);
+                    string serialized = await response.Content.ReadAsStringAsync();
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        UsuarioViewModel viewModel = await
+                        Task.Run(() => JsonConvert.DeserializeObject<UsuarioViewModel>(serialized));
+
+                        string contentType = System.Net.Mime.MediaTypeNames.Application.Octet;
+
+                        byte[] fileBytes = viewModel.Foto;
+                        string fileName = $"Foto{viewModel.Username}_{DateTime.Now:ddMMyyyymmss}.png";
+                            return File(fileBytes, contentType, fileName);
+                    }
+                    else
+                        throw new System.Exception(serialized);
+                }
+                catch (System.Exception ex)
+                {
+                    TempData["MensagemErro"] = ex.Message;
+                    return RedirectToAction("IndexInformacoes");
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+
+
 
     }
 }
