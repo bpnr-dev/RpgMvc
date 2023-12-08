@@ -245,11 +245,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\2D_BN\\DS\\RpgMvc\\RpgMvc.csproj",
+      "projectUniqueName": "E:\\DesenvolvimentoDeSistemas\\2DS\\ds\\RpgMvc\\RpgMvc.csproj",
       "projectName": "RpgMvc",
-      "projectPath": "D:\\2D_BN\\DS\\RpgMvc\\RpgMvc.csproj",
+      "projectPath": "E:\\DesenvolvimentoDeSistemas\\2DS\\ds\\RpgMvc\\RpgMvc.csproj",
       "packagesPath": "C:\\Users\\etechas\\.nuget\\packages\\",
-      "outputPath": "D:\\2D_BN\\DS\\RpgMvc\\obj\\",
+      "outputPath": "E:\\DesenvolvimentoDeSistemas\\2DS\\ds\\RpgMvc\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

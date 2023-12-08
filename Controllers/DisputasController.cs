@@ -91,7 +91,7 @@ namespace RpgMvc.Controllers
 
                     ViewBag.ListAtacantes = listaPersonagens;
                     ViewBag.ListOponentes = listaPersonagens;
-                    return View();
+                    
                 }
                 else
                     throw new System.Exception(serialized);

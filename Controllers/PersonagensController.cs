@@ -20,6 +20,10 @@ namespace RpgMvc.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("SessionIdUsuario")))
+                {
+                    return RedirectToAction("Sair", "Usuarios");
+                }
                 string perfil = HttpContext.Session.GetString("SessionPerfilUsuario");
                 ViewBag.Perfil = perfil;
 
